@@ -11,7 +11,7 @@ const port = process.env.PORT || 3000;
 
 // Renderの永続化ディスク用パス設定
 const IS_RENDER = process.env.RENDER === 'true';
-const DATA_DIR = IS_RENDER ? '/data' : __dirname;
+const DATA_DIR = IS_RENDER ? path.join(__dirname, 'data') : __dirname;
 const DB_PATH = path.join(DATA_DIR, 'votes.db');
 const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
 

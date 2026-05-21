@@ -10,6 +10,9 @@ node_modules/
 *.db-shm
 *.db-wal
 
+# Data directory
+data/
+
 # Uploads
 uploads/
 
