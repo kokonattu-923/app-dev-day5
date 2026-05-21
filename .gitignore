@@ -24,6 +24,8 @@ lerna-debug.log*
 .env.test.local
 .env.production.local
 
+cookies.txt
+
 # Operating System files
 .DS_Store
 Thumbs.db
