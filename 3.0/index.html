@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PD shere</title>
+    <title>PD share</title>
     <style>
         :root {
             --primary-color: #40E0D0;
@@ -211,7 +211,18 @@
             padding: 5px;
         }
 
+        .action-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
         .like-btn.active { color: #e74c3c; }
+        .like-btn.active svg { fill: #e74c3c; stroke: #e74c3c; }
         .reply-btn:hover { color: var(--primary-dark); }
 
         /* 固定投稿バー */
@@ -242,8 +253,17 @@
             background: none;
             border: none;
             color: #e74c3c;
-            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
+        }
+
+        .cancel-reply svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            stroke-width: 2;
         }
 
         .dock-inner {
@@ -301,7 +321,18 @@
 
         .file-input-label {
             cursor: pointer;
-            font-size: 1.4rem;
+            color: #95a5a6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-input-label svg {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
         }
 
         #image-preview-container {
@@ -327,8 +358,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
             cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+
+        .remove-image svg {
+            width: 12px;
+            height: 12px;
+            stroke: white;
+            stroke-width: 3;
         }
 
         #send-button {
@@ -366,7 +405,7 @@
 <body>
     <header>
         <div class="header-top">
-            <h1>PD shere</h1>
+            <h1>PD share</h1>
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span id="user-display" style="font-size: 0.75rem;"></span>
                 <button id="logout-btn" class="hidden">Logout</button>
@@ -379,10 +418,10 @@
 
     <div id="app">
         <div id="login-container">
-            <h2>PD shere Login</h2>
+            <h2>PD share Login</h2>
             <input type="text" id="nickname" placeholder="ニックネーム" required>
             <input type="password" id="password" placeholder="学科パスワード" required>
-            <button id="login-button">PD shereに入る</button>
+            <button id="login-button">PD shareに入る</button>
             <p id="login-error" style="color: #e74c3c; font-size: 0.8rem; margin-top: 10px;" class="hidden"></p>
         </div>
 
@@ -393,7 +432,9 @@
                 <div class="dock-inner">
                     <div id="reply-info" class="reply-indicator hidden">
                         <span id="reply-text">〇〇さんへ返信中</span>
-                        <button class="cancel-reply" onclick="cancelReply()">✕</button>
+                        <button class="cancel-reply" onclick="cancelReply()">
+                            <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+                        </button>
                     </div>
                     <div class="tag-inputs">
                         <input type="text" id="subject-tag" placeholder="授業名">
@@ -403,13 +444,15 @@
                         <div class="content-area">
                             <div id="image-preview-container">
                                 <img id="image-preview">
-                                <div class="remove-image" onclick="clearImage()">✕</div>
+                                <button class="remove-image" onclick="clearImage()">
+                                    <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+                                </button>
                             </div>
                             <textarea id="post-input" placeholder="メッセージを入力..." rows="1"></textarea>
                             <div class="action-row">
                                 <label class="file-input-label">
                                     <input type="file" id="image-input" accept="image/*" class="hidden">
-                                    📷
+                                    <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
                                 </label>
                                 <button id="send-button">投稿</button>
                             </div>
@@ -424,6 +467,12 @@
         let currentUser = null;
         let replyingToId = null;
         let postsData = [];
+
+        // SVGアイコンの定義
+        const icons = {
+            heart: '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>',
+            message: '<svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>'
+        };
 
         const elements = {
             loginContainer: document.getElementById('login-container'),
@@ -598,8 +647,8 @@
                 </div>
                 <div class="post-footer">
                     <div class="action-btns">
-                        <button class="action-btn like-btn" onclick="likePost(${post.id})">❤️ ${post.likes || 0}</button>
-                        <button class="action-btn reply-btn" onclick="setReply(${post.id}, '${escapeHTML(post.nickname)}')">💬 返信</button>
+                        <button class="action-btn like-btn" onclick="likePost(${post.id})">${icons.heart} <span>${post.likes || 0}</span></button>
+                        <button class="action-btn reply-btn" onclick="setReply(${post.id}, '${escapeHTML(post.nickname)}')">${icons.message} <span>返信</span></button>
                     </div>
                 </div>
             `;
